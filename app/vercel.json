@@ -11,6 +11,10 @@
     {
       "source": "/open-meteo/:path*",
       "destination": "https://api.open-meteo.com/:path*"
+    },
+    {
+      "source": "/((?!api|static|.*\\..*).*)",
+      "destination": "/index.html"
     }
   ]
 }
