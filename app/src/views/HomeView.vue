@@ -1,8 +1,9 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import twemoji from 'twemoji'
-import ZennArticleCard from '@/components/ZennArticleCard.vue'
-import WebLinkCard from '@/components/WebLinkCard.vue'
+import { ref, computed, onMounted } from 'vue';
+import twemoji from 'twemoji';
+import { HELLO_MESSAGES } from '@/lib/constants';
+import ZennArticleCard from '@/components/ZennArticleCard.vue';
+import WebLinkCard from '@/components/WebLinkCard.vue';
 
 const now = ref(new Date())
 const infoSection = ref(null)
@@ -19,6 +20,8 @@ const today = computed(() =>
     weekday: 'short',
   }),
 )
+
+const message = computed(() => HELLO_MESSAGES[Math.floor(Math.random() * HELLO_MESSAGES.length)]);
 
 onMounted(async () => {
   const mmdd = new Intl.DateTimeFormat('ja-JP', { month: '2-digit', day: '2-digit' })
@@ -79,21 +82,50 @@ function head() {
 
 <template>
   <div class="home-view">
-
-    <div id="keyvisual">
-      <img src="/img/me.png" alt="プロフィール写真" />
-      <div class="kv-hello">
-        <div>
-          <p>こんにちは</p>
-          <p>細田佳希のポートフォリオです</p>
-          <p>今日は「{{ today }}」ですね</p>
-          <p v-if="birthday !== null">
-            {{ birthday.profile }}、{{ birthday.name }}の誕生日だそうです
+    <section class="boot-console" aria-label="初期化中のターミナル風アニメーション" aria-hidden="true">
+      <div class="boot-console__frame">
+        <div class="boot-console__titlebar">
+          <span>portfolio@localhost</span>
+          <span>boot sequence</span>
+        </div>
+        <div class="boot-console__content">
+          <p class="boot-console__lead">
+            <span class="boot-console__prompt">$</span>
+            systemctl start profile.service
           </p>
-          <p v-if="weather !== null">
-            今の東京都千代田区の天気は{{ weather }}で、{{ temperature }}°Cです
+          <p class="boot-console__line" style="--line-delay: 0.34s">
+            &gt; init portfolio shell
+          </p>
+          <p class="boot-console__line" style="--line-delay: 0.62s">
+            &gt; load profile data
+          </p>
+          <p class="boot-console__line" style="--line-delay: 0.9s">
+            &gt; connect api / timeline / works
+          </p>
+          <p class="boot-console__line" style="--line-delay: 1.18s">
+            &gt; ready
+          </p>
+          <p class="boot-console__line boot-console__line--cursor" style="--line-delay: 1.46s">
+            <span class="boot-console__prompt">&gt;</span>
+            waiting for input
           </p>
         </div>
+      </div>
+    </section>
+
+    <div class="keyvisual">
+      <img src="/img/me.png" alt="プロフィール写真" />
+      <div>
+        <p>こんにちは</p>
+        <p>細田佳希のポートフォリオです</p>
+        <p>今日は "{{ today }}" ですね</p>
+        <p v-if="birthday !== null">
+          {{ birthday.profile }}、{{ birthday.name }}の誕生日だそうです
+        </p>
+        <p v-if="weather !== null">
+          今の東京都千代田区の天気は{{ weather }}で、{{ temperature }}°Cです
+        </p>
+        <p>{{ message }}</p>
       </div>
     </div>
 
@@ -248,34 +280,143 @@ function head() {
 
 <style lang="scss" scoped>
 @use '@/styles/variables.scss' as var;
-
 .home-view {
-  margin: 0 auto;
-  @include var.narrow() {
-    width: 60%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.boot-console {
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background:
+    linear-gradient(180deg, rgba(16, 22, 28, 0.96), rgba(6, 10, 16, 0.98)),
+    radial-gradient(circle at top, rgba(0, 255, 180, 0.12), transparent 55%);
+  box-shadow:
+    0 24px 50px -28px rgba(0, 0, 0, 0.65),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.05), transparent 18%),
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 1.8rem,
+        rgba(255, 255, 255, 0.03) 1.8rem,
+        rgba(255, 255, 255, 0.03) 1.9rem
+      );
+    pointer-events: none;
+    mix-blend-mode: screen;
+    opacity: 0.8;
+  }
+
+  p {
+    color: #eaeaea;
   }
 }
 
-#keyvisual {
-  text-align: center;
-  margin: 5rem 0;
+.boot-console__frame {
+  position: relative;
+  z-index: 1;
+  padding: 1rem 1.1rem 1.15rem;
+  color: #a7f3d0;
+  font-family: 'DM Mono', 'Ubuntu Mono', monospace;
+}
+
+.boot-console__titlebar {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(191, 255, 231, 0.8);
+  margin-bottom: 0.9rem;
+}
+
+.boot-console__content {
+  display: grid;
+  gap: 0.45rem;
+  font-size: clamp(0.95rem, 2vw, 1.05rem);
+  line-height: 1.6;
+}
+
+.boot-console__lead,
+.boot-console__line {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  opacity: 0;
+  transform: translateY(0.55rem);
+  animation: boot-line-in 0.45s ease forwards;
+}
+
+.boot-console__lead {
+  color: #d1fae5;
+  animation-delay: 0.05s;
+}
+
+.boot-console__line {
+  animation-delay: 1s;
+}
+
+.boot-console__line--cursor {
+  width: fit-content;
+  margin-top: 0.15rem;
+
+  &::after {
+    content: '';
+    width: 0.6em;
+    height: 1.05em;
+    margin-left: 0.2rem;
+    background: currentColor;
+    border-radius: 2px;
+    animation: boot-cursor 0.95s steps(1) infinite;
+  }
+}
+
+.boot-console__prompt {
+  color: #4ade80;
+}
+
+.keyvisual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1.25rem 1rem;
+  border-radius: 1rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 55%);
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  box-shadow: 0 18px 34px -28px var(--shadow);
+  animation: hero-rise 700ms cubic-bezier(0.2, 0.7, 0.2, 1) 0.15s both;
+
+  p {
+    text-align: center;
+  }
+
   img {
     height: 10rem;
+    animation: hero-float 5.5s ease-in-out infinite;
   }
+  
   @include var.narrow() {
-    display: flex;
-    justify-content: center;
-    .kv-hello {
-      display: flex;
-      align-items: center;
-      height: 10rem;
-    }
+    flex-direction: column;
   }
 }
 
 #info {
   display: grid;
   gap: 1rem;
+  
   details {
     border: 1px solid var(--border);
     border-radius: var(--border-radius);
@@ -374,6 +515,100 @@ function head() {
   @include var.narrow() {
     grid-template-columns: 1fr;
     gap: 1rem;
+  }
+}
+
+h1,
+section,
+nav {
+  animation: hero-rise 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+h1:nth-of-type(1) {
+  animation-delay: 0.35s;
+}
+
+section:nth-of-type(2) {
+  animation-delay: 0.45s;
+}
+
+h1:nth-of-type(2) {
+  animation-delay: 0.6s;
+}
+
+nav {
+  animation-delay: 0.7s;
+}
+
+@keyframes boot-line-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.55rem);
+    filter: blur(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes boot-cursor {
+  0%,
+  49% {
+    opacity: 1;
+  }
+
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+    filter: blur(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes hero-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-0.35rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boot-console__lead,
+  .boot-console__line,
+  .keyvisual,
+  .keyvisual img,
+  #info,
+  h1,
+  section,
+  nav {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    filter: none !important;
+    opacity: 1 !important;
+  }
+
+  .boot-console__line--cursor::after {
+    animation: none !important;
   }
 }
 </style>

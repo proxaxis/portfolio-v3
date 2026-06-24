@@ -13,6 +13,23 @@
 @import url('https://fonts.googleapis.com/css?family=Noto+Serif+JP'); // 'Noto Serif JP'
 @import url('https://fonts.googleapis.com/css?family=Noto+Sans+JP'); // 'Noto Sans JP'
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap'); // 'DM Mono'
+@import url('https://fonts.googleapis.com/css2?family=Anton+SC&display=swap'); // 'Anton SC'
+
+// サイズ定数
+$size: (
+  header-height: 60px,
+  border-radius: 6px,
+  vw-max-width: 1024px,
+  vw-min-width: 356px,
+  main-margin-top: 2rem,
+  main-margin-bottom: 2rem
+);
+
+@mixin spread-size-vars() {
+  @each $key, $value in $size {
+    --#{$key}: #{$value};
+  }
+}
 
 // カラーコード定数
 $base-color-lt-bg: #ffffff;
@@ -48,65 +65,16 @@ $themes: (
   )
 );
 
-// CSS変数を展開する
-@mixin spread-vars($theme-name) {
+@mixin spread-theme-vars($theme-name) {
   $theme-map: map.get($themes, $theme-name);
   @each $key, $value in $theme-map {
     --#{$key}: #{$value};
   }
 }
 
+// メディアクエリ用のミックスイン
 @mixin narrow() {
-  @media (min-width: 1024px) {
+  @media (max-width: #{map.get($size, vw-max-width)}) {
     @content;
   }
-}
-
-@mixin iconAnimation() {
-	opacity: 0.8;
-	transition: 0.6s;
-
-	&:hover {
-		opacity: 1;
-		transform: scale(1.1);
-		cursor: pointer;
-	}
-}
-
-$btn-main-color: #0000ff;
-$btn-main-text-color: #ffffff;
-@mixin btnMain() {
-	& {
-		border: 2px solid $btn-main-color;
-		border-radius: 0.2rem;
-		background-color: $btn-main-color;
-		color: $btn-main-text-color;
-		transition: 0.6s;
-	}
-
-	&:hover {
-		cursor: pointer;
-		box-shadow: 0 0 5px 1px cp('shadow');
-		border: 2px solid color.scale($btn-main-color, $lightness: 15%);
-		background-color: color.scale($btn-main-color, $lightness: 15%);
-	}
-}
-
-$btn-sub-color: #ffffff;
-$btn-sub-text-color: #333333;
-@mixin btnSub() {
-	& {
-		padding: 1px;
-		border: 1px solid $btn-sub-color;
-		border-radius: 0.2rem;
-		background-color: $btn-sub-color;
-		color: $btn-sub-text-color;
-		transition: 0.6s;
-	}
-
-	&:hover {
-		cursor: pointer;
-		box-shadow: 0 0 5px 1px cp('shadow');
-		background-color: color.scale($btn-sub-color, $lightness: -15%);
-	}
 }

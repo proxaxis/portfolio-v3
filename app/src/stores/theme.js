@@ -3,8 +3,8 @@ import { defineStore } from 'pinia';
 
 export const useThemeStore = defineStore('theme', () => {
   const theme = ref('light');
+  const mediaQuery = ref(null);
 
-  // システムのテーマ設定を取得
   function getSystemTheme() {
     if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
       return 'dark';
@@ -12,27 +12,26 @@ export const useThemeStore = defineStore('theme', () => {
     return 'light';
   }
 
-  // テーマを適用
   function applyTheme(t) {
     document.documentElement.setAttribute('data-theme', t);
     theme.value = t;
   }
 
+  function handleThemeChange(e) {
+    applyTheme(e.matches ? 'dark' : 'light');
+  }
+  
   onMounted(() => {
-    // システムテーマを取得して適用
     const systemTheme = getSystemTheme();
     applyTheme(systemTheme);
   
-    // システムテーマの変更を監視
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleThemeChange = (e) => {
-      applyTheme(e.matches ? 'dark' : 'light');
-    }
-    mediaQuery.addEventListener('change', handleThemeChange);
+    mediaQuery.value = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    mediaQuery.value.addEventListener('change', handleThemeChange);
   });
 
   onUnmounted(() => {
-      mediaQuery.removeEventListener('change', handleThemeChange);
+    mediaQuery.value.removeEventListener('change', handleThemeChange);
   });
 
   return { theme, applyTheme };

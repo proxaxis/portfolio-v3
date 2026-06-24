@@ -147,6 +147,10 @@
 </template>
 
 <style lang="scss" scoped>
+img {
+  max-width: 100%;
+  height: auto;
+}
 .image-gallery {
   overflow-x: scroll;
   .image-gallery-inner {

@@ -1,32 +1,23 @@
 <script setup>
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import AppHeader from '@/components/AppHeader.vue';
-import AppFooter from '@/components/AppFooter.vue';
-import IconArrowUp from '@/components/icons/IconArrowUp.vue';
+import { useUserStore } from '@/stores/user';
+import { TAB_PAGE_NAMES } from '@/lib/constants';
+import AppWideHeader from '@/components/AppWideHeader.vue';
+import AppNarrowHeader from '@/components/AppNarrowHeader.vue';
 
 const route = useRoute();
 const router = useRouter();
+const userStore = useUserStore();
 
-const isTopButtonVisible = ref(false);
 const prevPageName = ref('Home');
 const rfTop = ref(null);
+const isNarrowWindow = ref(window.innerWidth < 1024);
 
-function handleScroll() {
-  const currentScrollY = window.scrollY;
+const headerComponent = computed(() => isNarrowWindow.value ? AppNarrowHeader : AppWideHeader);
 
-  if (currentScrollY <= 100) {
-    // ページ上部では常に非表示
-    isTopButtonVisible.value = false;
-  } else if (currentScrollY < this.lastScrollY) {
-    // スクロールアップした場合
-    isTopButtonVisible.value = true;
-  } else {
-    // スクロールダウンした場合
-    isTopButtonVisible.value = false;
-    if (route.hash === '#top') router.push({ hash: '' });
-  }
-  this.lastScrollY = currentScrollY;
+function handleResize() {
+  isNarrowWindow.value = window.innerWidth < 1024;
 }
 
 function goPageTop() {
@@ -47,25 +38,39 @@ watch(() => route, (to) => {
       behavior: 'smooth',
     })
   }
+  userStore.lastPageIndex = TAB_PAGE_NAMES.indexOf(to.name);
 }, { deep: true });
 
+watch(() => userStore.isGoingTop, (to) => {
+  if (to) {
+    rfTop.value.scrollIntoView({
+      behavior: 'smooth',
+    });
+    userStore.isGoingTop = false;
+  }
+});
+
 onMounted(() => {
-  window.addEventListener('scroll', handleScroll);
+  window.addEventListener('resize', handleResize);
 })
 
-onUnmounted(() => window.removeEventListener('scroll', handleScroll));
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+});
 </script>
 
 <template>
-  <header ref="rfTop">
-    <AppHeader />
-  </header>
+  <div ref="rfTop" style="width: 100%;"></div>
+  <Component :is="headerComponent" />
   <main>
     <router-view />
-    <IconArrowUp v-show="isTopButtonVisible" class="go-top-button" @click="goPageTop" />
   </main>
   <footer>
-    <AppFooter />
+		<p>&copy; 2025 Hosoda Yoshiki. All Rights Reserved.</p>
+		<p>
+			&copy;<a href="https://github.com/twitter/twemoji" target="_blank" rel="noopener noreferrer">Twemoji</a> by Copyright 2021 Twitter, Inc and other contributors is licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC-BY 4.0</a>
+		</p>
+		<p>Thanks: <a href="https://www.whatistoday.cyou/index.cgi/">今日は何の日API</a>、<a href="https://www.open-meteo.com/">Open-Meteo</a></p>
   </footer>
 </template>
 
@@ -75,16 +80,15 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll));
 
 :root {
   color-scheme: light dark;
-  --border-radius: 6px;
-  --header-height: 60px;
+  @include var.spread-size-vars();
 }
 
 :root[data-theme='light'] {
-  @include var.spread-vars(light);
+  @include var.spread-theme-vars(light);
 }
 
 :root[data-theme='dark'] {
-  @include var.spread-vars(dark);
+  @include var.spread-theme-vars(dark);
   box-sizing: border-box;
 }
 
@@ -95,8 +99,37 @@ body {
   -moz-osx-font-smoothing: grayscale;
   padding: 0;
   margin: 0;
-  height: 100%;
   scroll-behavior: smooth;
+  interpolate-size: allow-keywords;
+  overscroll-behavior-x: none !important;
+  background-color: var(--bg-0);
+  box-sizing: border-box;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  min-height: 100vh;
+  width: 100%;
+  min-width: var(--vw-min-width);
+  max-width: var(--vw-max-width);
+  margin: calc(var(--header-height) + var(--main-margin-top)) auto var(--main-margin-bottom) auto;
+
+  @include var.narrow() {
+    padding: 0 1rem;
+    width: calc(100% - 2rem);
+  }
+}
+
+footer {
+  background-color: var(--bg-1);
+	text-align: center;
+	color: var(--text-0);
+  padding: 1rem 0;
+  box-shadow: 0 -2px 4px var(--shadow);
 }
 
 h1,
@@ -114,10 +147,6 @@ a:visited {
   text-decoration: none;
 }
 
-a:hover {
-  color: var(--accent);
-}
-
 nav,
 ul,
 li {
@@ -127,26 +156,20 @@ li {
   color: var(--text-0);
 }
 
-#app {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
 
-header {
-  width: 100%;
-  background-color: var(--bg-1);
-}
-
-main {
-  margin-top: var(--header-height);
-  padding: 0 1rem 1rem 1rem;
-  background-color: var(--bg-0);
-}
-
-footer {
-  flex-grow: 1;
-  background-color: var(--bg-1);
+button {
+  &,
+  &:hover,
+  &:active {
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    color: var(--text);
+    padding: 0;
+  }
 }
 
 .go-top-button {
@@ -157,6 +180,7 @@ footer {
   bottom: 1rem;
   background-color: transparent;
   opacity: 0.6;
+  
   &:hover {
     cursor: pointer;
     opacity: 1;
@@ -169,5 +193,26 @@ footer {
 
 .icons {
   fill: var(--text-0);
+}
+
+details {
+  summary {
+    user-select: none;
+  }
+
+  &::details-content {
+    overflow: clip;
+    height: 0;
+    transition:
+      height 300ms ease,
+      border 300ms ease,
+      content-visibility 300ms ease allow-discrete;
+  }
+
+  &[open] {
+    &::details-content {
+      height: auto;
+    }
+  }
 }
 </style>

@@ -62,8 +62,6 @@ onUnmounted(() => {
 </template>
 
 <style lang="scss" scoped>
-@use '@/styles/variables' as var;
-
 .app-snackbar {
   position: fixed;
   left: 1rem;

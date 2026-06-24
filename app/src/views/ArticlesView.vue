@@ -1,35 +1,15 @@
 <script setup>
 import { ref } from 'vue';
-import Loading from 'vue-loading-overlay';
+import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import ZennArticleCard from '@/components/ZennArticleCard.vue';
 
 const isZennArticlesLoading = ref(true);
-
-function head() {
-  return {
-    title: this.$route.meta.title,
-    meta: [
-      { 
-        name: 'description',
-        content: this.$route.meta.description ,
-      },
-      {
-        property: 'og:title',
-        content: this.$route.meta.og_title,
-      },
-      {
-        property: 'og:description',
-        content: this.$route.meta.og_description,
-      }
-    ]
-  };
-}
 </script>
 
 <template>
   <div class="articles-view">
     <h1>Zenn の投稿記事一覧</h1>
-    <Loading v-model:active="isZennArticlesLoading" :is-full-page="true" loader="dots" color="#333" />
+    <LoadingSpinner text="読み込み中" v-if="isZennArticlesLoading" />
     <ZennArticleCard v-show="!isZennArticlesLoading" :limit="50" @onload="isZennArticlesLoading = false" />
   </div>
 </template>
