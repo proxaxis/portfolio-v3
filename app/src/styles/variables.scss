@@ -1,5 +1,5 @@
-@use "sass:color";
-@use "sass:map";
+@use 'sass:color';
+@use 'sass:map';
 
 // フォント
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap'); // 'Noto Sans JP'
@@ -20,7 +20,7 @@ $size: (
   header-height: 60px,
   border-radius: 6px,
   vw-max-width: 1024px,
-  vw-min-width: 356px,
+  vw-min-width: 300px,
   main-margin-top: 2rem,
   main-margin-bottom: 2rem
 );
@@ -72,7 +72,7 @@ $themes: (
   }
 }
 
-// メディアクエリ用のミックスイン
+// モバイルの時に適用するスタイル
 @mixin narrow() {
   @media (max-width: #{map.get($size, vw-max-width)}) {
     @content;

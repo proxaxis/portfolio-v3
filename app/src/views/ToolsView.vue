@@ -19,13 +19,14 @@
 
 <style lang="scss" scoped>
 .tools-view {
+  // min-height: 100vh;
   nav ul {
     list-style: none;
     padding: 0;
     li {
       margin-bottom: 1rem;
       list-style: circle;
-      
+
       a {
         font-size: 1.2em;
       }

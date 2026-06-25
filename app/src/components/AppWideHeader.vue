@@ -19,7 +19,7 @@ const userStore = useUserStore();
 const isHeaderVisible = ref(true);
 const lastScrollY = ref(0);
 
-const themeIconComponent = computed(() => themeStore.theme === 'light' ? IconMoon : IconSun);
+const themeIconComponent = computed(() => (themeStore.theme === 'light' ? IconMoon : IconSun));
 
 function changeTheme() {
   themeStore.applyTheme(themeStore.theme === 'light' ? 'dark' : 'light');
@@ -129,7 +129,7 @@ header.is-hidden {
   height: 100%;
   box-sizing: border-box;
   padding: 0 1rem;
-  font-family: "Anton SC", sans-serif;
+  font-family: 'Anton SC', sans-serif;
   color: var(--accent);
   transition: transform 0.35s ease;
 
@@ -148,13 +148,15 @@ nav ul {
     display: inline-block;
 
     &::after {
-      content: "";
+      content: '';
       position: absolute;
       left: 50%;
       width: 0;
       height: 2px;
       background-color: var(--accent);
-      transition: width 0.4s ease-in-out, transform 0.4s ease-in-out;
+      transition:
+        width 0.4s ease-in-out,
+        transform 0.4s ease-in-out;
       transform: translateX(-50%);
     }
 
@@ -175,7 +177,7 @@ nav ul {
     }
 
     &.active {
-      &::after{
+      &::after {
         width: 60%;
       }
 

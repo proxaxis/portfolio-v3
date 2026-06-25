@@ -90,31 +90,31 @@ onBeforeUnmount(() => {
 
     <nav>
       <ul>
-        <li>
+        <li :class="{ active: userStore.lastPageIndex === 0 }">
           <button @click="transition('Home')">
             <IconHouse size="1.85rem" />
             <span>HOME</span>
           </button>
         </li>
-        <li>
+        <li :class="{ active: userStore.lastPageIndex === 1 }">
           <button @click="transition('Products')">
             <IconBoxOpen size="1.85rem" />
             <span>WORKS</span>
           </button>
         </li>
-        <li>
+        <li :class="{ active: userStore.lastPageIndex === 2 }">
           <button @click="transition('Articles')">
             <IconNewspaper size="1.85rem" />
             <span>ARTICLES</span>
           </button>
         </li>
-        <li>
+        <li :class="{ active: userStore.lastPageIndex === 3 }">
           <button @click="transition('Tools')">
             <IconScrewdriverWrench size="1.85rem" />
             <span>TOOLS</span>
           </button>
         </li>
-        <li>
+        <li :class="{ active: userStore.lastPageIndex === 4 }">
           <button @click="transition('Contact')">
             <IconCommentDots size="1.85rem" />
             <span>CONTACT</span>
@@ -197,8 +197,9 @@ nav {
     list-style: none;
     padding: 0;
     margin: 0;
-    
-    li button {
+
+    li {
+      button {
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -210,6 +211,17 @@ nav {
       font-size: 1rem;
       color: var(--text);
     }
+    &.active {
+      &::after {
+        width: 60%;
+      }
+
+      * {
+        color: var(--accent);
+        fill: var(--accent);
+      }
+    }
+  }
   }
 }
 
@@ -235,7 +247,7 @@ header.is-hidden {
   .header-wrapper {
     top: calc(var(--header-height) * -1 - 1rem);
   }
-  
+
   &:not(.is-active) nav {
     top: -100vh;
   }

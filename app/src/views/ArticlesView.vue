@@ -17,16 +17,12 @@ const isZennArticlesLoading = ref(true);
 <style lang="scss" scoped>
 @use '@/styles/variables.scss' as var;
 
-.articles-view {
-  margin: 0 auto;
-  @include var.narrow() {
-    width: 60%;
-  }
-  section {
-    img {
-      width: 100%;
-      max-width: 40rem;
-    }
-  }
+h1 {
+  padding-bottom: 0.5rem;
+}
+
+section img {
+  width: 100%;
+  max-width: 40rem;
 }
 </style>

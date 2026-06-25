@@ -29,7 +29,7 @@
 					{{ isSubmitting ? '送信中...' : '送信する' }}
 				</button>
 			</form>
-			
+
 			<div v-if="successMessage" class="success-message">
 				<p>{{ successMessage }}</p>
 			</div>
@@ -79,7 +79,7 @@ export default {
     return {
       title: this.$route.meta.title,
       meta: [
-        { 
+        {
           name: 'description',
           content: this.$route.meta.description ,
         },

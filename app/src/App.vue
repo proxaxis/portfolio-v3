@@ -1,16 +1,14 @@
 <script setup>
 import { onMounted, onUnmounted, ref, watch, computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { TAB_PAGE_NAMES } from '@/lib/constants';
 import AppWideHeader from '@/components/AppWideHeader.vue';
 import AppNarrowHeader from '@/components/AppNarrowHeader.vue';
 
 const route = useRoute();
-const router = useRouter();
 const userStore = useUserStore();
 
-const prevPageName = ref('Home');
 const rfTop = ref(null);
 const isNarrowWindow = ref(window.innerWidth < 1024);
 
@@ -20,26 +18,11 @@ function handleResize() {
   isNarrowWindow.value = window.innerWidth < 1024;
 }
 
-function goPageTop() {
-  rfTop.value.scrollIntoView({
-    behavior: 'smooth',
-  });
-}
-
-watch(() => route, (to) => {
-  if (to.name !== prevPageName.value) {
-    rfTop.value.scrollIntoView({
-      behavior: 'smooth',
-    })
-    prevPageName.value = to.name
-  }
-  if (to.hash === '#top') {
-    rfTop.value.scrollIntoView({
-      behavior: 'smooth',
-    })
-  }
-  userStore.lastPageIndex = TAB_PAGE_NAMES.indexOf(to.name);
-}, { deep: true });
+watch(() => route.name, (to) => {
+  if (to !== userStore.lastPageName) userStore.isGoingTop = true;
+  userStore.lastPageName = to;
+  userStore.lastPageIndex = TAB_PAGE_NAMES.indexOf(to);
+});
 
 watch(() => userStore.isGoingTop, (to) => {
   if (to) {
@@ -60,7 +43,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div ref="rfTop" style="width: 100%;"></div>
+  <div ref="rfTop"></div>
   <Component :is="headerComponent" />
   <main>
     <router-view />
@@ -104,17 +87,19 @@ body {
   overscroll-behavior-x: none !important;
   background-color: var(--bg-0);
   box-sizing: border-box;
+  height: 100%;
 }
 
 #app {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  height: 100%;
 }
 
 main {
-  min-height: 100vh;
-  width: 100%;
-  min-width: var(--vw-min-width);
+  width: min(100%, var(--vw-max-width));
+  min-width: min(100%, var(--vw-min-width));
   max-width: var(--vw-max-width);
   margin: calc(var(--header-height) + var(--main-margin-top)) auto var(--main-margin-bottom) auto;
 
@@ -130,6 +115,7 @@ footer {
 	color: var(--text-0);
   padding: 1rem 0;
   box-shadow: 0 -2px 4px var(--shadow);
+  flex-grow: 1;
 }
 
 h1,
@@ -145,6 +131,8 @@ a:active,
 a:visited {
   color: var(--text-0);
   text-decoration: none;
+  padding: 0;
+  margin: 0;
 }
 
 nav,
@@ -180,7 +168,7 @@ button {
   bottom: 1rem;
   background-color: transparent;
   opacity: 0.6;
-  
+
   &:hover {
     cursor: pointer;
     opacity: 1;
